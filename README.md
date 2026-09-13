@@ -80,7 +80,6 @@ flowchart LR
     DRAFT --> HUMAN["Human Contractor\nreview & sign-off"]
 ```
 
-> **Static export:** [`architecture_diagram.png`](architecture_diagram.png)
 **Key design decisions:**
 
 - **Autonomous but bounded** — the agent researches codes and drafts
