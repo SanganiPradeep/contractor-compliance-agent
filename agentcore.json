@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.contractor-compliance-scout.dev/agentcore-config.v1.json",
+  "project_name": "contractor-compliance-scout",
+  "hackathon": {
+    "event": "Agents for Humans Hackathon",
+    "track": "Professional Agents"
+  },
+  "runtime": {
+    "entrypoint": "agent/compliance_agent.py",
+    "agent_framework": "Strands",
+    "model_provider": "Bedrock",
+    "model_id": "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+    "protocol": "HTTP",
+    "deployment_type": "container",
+    "requirements_file": "requirements.txt",
+    "region": "us-east-1",
+    "idle_timeout_seconds": 900,
+    "max_lifetime_seconds": 28800
+  },
+  "memory": {
+    "enabled": true,
+    "strategy": "STM_AND_LTM",
+    "memory_name": "compliance-scout-memory",
+    "description": "Short-term session memory + long-term summary memory for multi-step contractor permit conversations",
+    "event_expiry_days": 90
+  },
+  "observability": {
+    "otel_enabled": true,
+    "service_name": "contractor-compliance-scout",
+    "traced_attributes": [
+      "hackathon.track",
+      "app.name",
+      "session.id",
+      "tool.name",
+      "tool.input",
+      "tool.status",
+      "latency_ms"
+    ],
+    "log_group_prefix": "/aws/bedrock-agentcore/contractor-compliance-scout"
+  },
+  "environment_variables": {
+    "BEDROCK_MODEL_ID": "us.anthropic.claude-sonnet-4-5-20250929-v1:0",
+    "AWS_REGION": "us-east-1",
+    "LOG_LEVEL": "INFO",
+    "AGENTCORE_MEMORY_ID": "compliance-scout-memory"
+  },
+  "tags": {
+    "project": "contractor-compliance-scout",
+    "hackathon": "agents-for-humans",
+    "track": "professional-agents"
+  }
+}
