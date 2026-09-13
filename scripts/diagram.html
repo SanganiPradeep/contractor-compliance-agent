@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ComplianceScout Architecture</title>
+<style>
+  body {
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 2rem;
+  }
+  .mermaid {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+</style>
+</head>
+<body>
+<pre class="mermaid">
+flowchart LR
+    U["User / Contractor\nProject Prompt"] --> SA
+
+    subgraph SA["Strands Agent Harness & Loop"]
+        direction TB
+        SYS["System Prompt\n(ComplianceScout persona)"]
+        LOOP["Agent Loop\n(SlidingWindowConversationManager\n+ SequentialToolExecutor)"]
+        HOOKS["ComplianceTraceHooks\n(decision + tool tracing)"]
+        SYS --> LOOP
+        LOOP -. emits .-> HOOKS
+    end
+
+    SA <--> BR["Amazon Bedrock\nClaude Sonnet (model provider)"]
+
+    LOOP --> T1["Tool: search_building_codes\n(zip_code, query)"]
+    LOOP --> T2["Tool: draft_permit_application\n(project_type, specs)"]
+    T1 --> MUNI["Municipal Zoning / Building\nCode APIs (or reference dataset)"]
+
+    subgraph ACR["Amazon Bedrock AgentCore"]
+        direction TB
+        RUNTIME["AgentCore Runtime\n(serverless HTTP host)"]
+        MEM["AgentCore Memory\n(session + summary persistence)"]
+        OBS["AgentCore Observability\n(OpenTelemetry traces & logs)"]
+    end
+
+    SA --> RUNTIME
+    RUNTIME <--> MEM
+    HOOKS -. OTEL spans .-> OBS
+    RUNTIME -. "CloudWatch GenAI\nObservability" .-> OBS
+
+    T2 --> DRAFT["Permit Draft\n(JSON + Markdown,\nrequires human signature)"]
+    DRAFT --> HUMAN["Human Contractor\nreview & sign-off"]
+</pre>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+  mermaid.initialize({ startOnLoad: true, theme: 'default', flowchart: { useMaxWidth: false } });
+</script>
+</body>
+</html>
